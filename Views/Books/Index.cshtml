@@ -1,0 +1,138 @@
+﻿@model IEnumerable<_Books.Models.Book>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2 class="text-primary">Books</h2>
+<hr />
+
+<a href="@Url.Action("Create")" class="btn btn-primary my-5">
+    <i class="icofont-plus"></i>
+    Add New
+</a>
+<span id="Message" class="d-none">@TempData["Message"]</span>
+
+
+    <div class="alert-warning @(Model.Any() ? "d-none" : "")">
+        No Books added yet
+    </div>
+
+    <table class="table @(!Model.Any() ? "d-none" : "")">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Added On</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(book.Title,"Details","Books",new { id =book.Id},null)</td>
+                    <td>@book.Author</td>
+                    <td>@book.category.name</td>
+                    <td>@book.Description</td>
+                    <td>@book.AddedOn</td>
+                    <td>
+                        <a href="@Url.Action("Edit","Books",new { id = book.Id})" class="btn btn-primary">
+                            <i class="icofont-ui-edit"></i>
+                            Edit
+                        </a>
+
+                        <a href="javaScript:;" class="btn btn-danger js-delete" data-id="@book.Id">
+                            <i class="icofont-ui-close"></i>
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+@section Scripts{
+ <script>
+     $(document).ready(function () {
+         @*toastr.options = {
+             "preventDuplicates": true
+         }
+         var message = $('Message').text();
+         if (message !== '') {
+             toastr.success("Test");
+         }*@
+
+         $('.js-delete').on('click', function () {
+             var btn = $(this);
+
+             // alert(btn.data("id"));
+             var result = confirm("Are u sure for deleting this book?");
+
+             if (result) {
+                 $.ajax({
+                     url: '/api/books/' + btn.data("id"),
+                     method: 'DELETE',
+                     success: function () {
+                         if ($('tbody tr').length === 1) {
+                             $('table').fadeOut(function () {
+                                 this.remove();
+                                 $('.alert').removeClass('d-none');
+                             });
+                         } else {
+
+                              btn.parents('tr').fadeOut(function () {
+                                 this.remove();
+                             });
+                         }
+                        
+                         toastr.success("Book deleted successfully!");
+                     },
+                     error: function () {
+                         toastr.error("Somthing went wrong!");
+                     }
+                 });
+             }
+             
+             @*bootbox.confirm({
+                 message: "Are u sure for deleting this book?",
+                 buttons: {
+                     confirm: {
+                         label: 'Yes',
+                         className: 'btn-danger'
+                     },
+                     cancel: {
+                         label: 'No',
+                         className: 'btn-outline-secondary'
+                     }
+                 },
+                 callback: function (result) {
+                     console.log('This was logged in the callback: ' + result);
+
+                     //console.log(result);
+                     if (result) {
+                         $.ajax({
+                             url: '/api/books/' + btn.data("id"),
+                             method: 'DELETE',
+                             success: function () {
+                                 btn.parents('tr').fadeOut(function () {
+                                     this.remove();
+                                 });
+                                 toastr.success("Book deleted successfully!");
+                             },
+                             error: function () {
+                                 toastr.error("Somthing went wrong!");
+                             }
+                         });
+                     }
+                 }
+             });*@
+
+             //alert(btn.data("id"));
+             @*var result = confirm("Are u sure for deleting this book?");
+             *@
+         });
+    });
+ </script>
+}
